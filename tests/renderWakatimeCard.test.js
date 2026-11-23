@@ -89,4 +89,29 @@ describe("Test Render WakaTime Card", () => {
     });
     expect(card).toMatchSnapshot();
   });
+
+  it.each(["default", "compact"])(
+    "should escape language data from the WakaTime API in the %s layout",
+    (layout) => {
+      const payload = '"><script>alert(1)</script>';
+      const card = renderWakatimeCard(
+        {
+          ...wakaTimeData.data,
+          languages: [
+            { name: payload, text: payload, percent: 50, hours: 1, minutes: 0 },
+          ],
+        },
+        { layout },
+      );
+
+      expect(card).not.toContain("<script");
+      document.body.innerHTML = card;
+      expect(document.querySelector("script")).toBeNull();
+      expect(document.body.textContent).toContain(payload);
+      if (layout === "default") {
+        // The whole payload stays inside the data-testid attribute.
+        expect(queryByTestId(document.body, payload)).not.toBeNull();
+      }
+    },
+  );
 });

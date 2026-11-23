@@ -193,4 +193,25 @@ describe("Card", () => {
       document.querySelector("defs #gradient stop:nth-child(3)"),
     ).toHaveAttribute("stop-color", "#f00");
   });
+
+  it("should apply a numeric border radius from the query string", () => {
+    const card = new Card({ border_radius: "10" });
+
+    document.body.innerHTML = card.render(``);
+    expect(queryByTestId(document.body, "card-bg")).toHaveAttribute("rx", "10");
+  });
+
+  it("should not inject markup through border radius", () => {
+    const card = new Card({
+      border_radius: '"><script>alert(1)</script>',
+    });
+
+    const svg = card.render(``);
+    document.body.innerHTML = svg;
+    expect(svg).not.toContain("<script");
+    expect(queryByTestId(document.body, "card-bg")).toHaveAttribute(
+      "rx",
+      "4.5",
+    );
+  });
 });

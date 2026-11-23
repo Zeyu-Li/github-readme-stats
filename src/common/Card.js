@@ -3,6 +3,8 @@
 import { encodeHTML } from "./html.js";
 import { flexLayout } from "./render.js";
 
+const DEFAULT_BORDER_RADIUS = 4.5;
+
 class Card {
   /**
    * Creates a new card instance.
@@ -10,7 +12,7 @@ class Card {
    * @param {object} args Card arguments.
    * @param {number=} args.width Card width.
    * @param {number=} args.height Card height.
-   * @param {number=} args.border_radius Card border radius.
+   * @param {number|string=} args.border_radius Card border radius (query strings are parsed as numbers).
    * @param {string=} args.customTitle Card custom title.
    * @param {string=} args.defaultTitle Card default title.
    * @param {string=} args.titlePrefixIcon Card title prefix icon.
@@ -24,7 +26,7 @@ class Card {
   constructor({
     width = 100,
     height = 100,
-    border_radius = 4.5,
+    border_radius = DEFAULT_BORDER_RADIUS,
     colors = {},
     customTitle,
     defaultTitle = "",
@@ -36,7 +38,12 @@ class Card {
     this.hideBorder = false;
     this.hideTitle = false;
 
-    this.border_radius = border_radius;
+    // Only a number may reach the SVG attribute; anything else would be
+    // reflected verbatim from the query string.
+    const parsedBorderRadius = parseFloat(String(border_radius));
+    this.border_radius = Number.isFinite(parsedBorderRadius)
+      ? parsedBorderRadius
+      : DEFAULT_BORDER_RADIUS;
 
     // returns theme based colors with proper overrides and defaults
     this.colors = colors;
